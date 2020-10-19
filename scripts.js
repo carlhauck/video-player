@@ -8,6 +8,12 @@ const skipButtons = player.querySelectorAll('[data-skip]');
 const fullScreen = player.querySelector('.fullscreen');
 const ranges = player.querySelectorAll('.player__slider');
 
+// Speech recognition
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.interimResults = true;
+recognition.lang = 'en-US';
+
 // Build our functions
 function togglePlay() {
   if (video.paused) {
@@ -52,6 +58,19 @@ function openFullscreen() {
   }
 }
 
+recognition.addEventListener('result', e => {
+  const transcript = Array.from(e.results)
+    .map(result => result[0])
+    .map(result => result.transcript)
+    .join('');
+
+  if (transcript.includes('play')) {
+    togglePlay();
+  }
+  console.log(transcript);
+});
+
+
 // Hook up event listeners
 video.addEventListener('click', togglePlay);
 video.addEventListener('play', updateButton);
@@ -70,3 +89,7 @@ progress.addEventListener('click', scrub);
 progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
 progress.addEventListener('mousedown', () => mousedown = true);
 progress.addEventListener('mouseup', () => mousedown = false);
+
+// Speech Recognition
+recognition.addEventListener('end', recognition.start);
+recognition.start();
