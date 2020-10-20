@@ -35,8 +35,12 @@ function updateButton() {
   toggle.textContent = icon;
 }
 
-function skip() {
-  video.currentTime += parseFloat(this.dataset.skip);
+function skip(seconds) {
+  if (seconds) {
+    video.currentTime += parseFloat(seconds);
+  } else {
+    video.currentTime += parseFloat(this.dataset.skip);
+  }
 }
 
 function handleRangeUpdate() {
@@ -68,6 +72,21 @@ function openFullscreen() {
   }
 }
 
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozRequestFullScreen) {
+    /* Firefox */
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    /* Chrome, Safari and Opera */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    /* IE/Edge */
+    document.msExitFullscreen();
+  }
+}
+
 recognition.addEventListener("result", (e) => {
   const transcript = Array.from(e.results)
     .map((result) => result[0])
@@ -80,8 +99,14 @@ recognition.addEventListener("result", (e) => {
       video.play();
     } else if (transcript.includes("pause")) {
       video.pause();
+    } else if (transcript.includes("exit")) {
+      exitFullscreen();
     } else if (transcript.includes("full screen")) {
       openFullscreen();
+    } else if (transcript.includes("skip ahead")) {
+      skip(25);
+    } else if (transcript.includes("skip back")) {
+      skip(-10);
     }
   }
 });
