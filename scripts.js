@@ -1,20 +1,27 @@
 // Get our elements
-const player = document.querySelector('.player');
-const video = player.querySelector('.viewer');
-const progress = player.querySelector('.progress');
-const progressBar = player.querySelector('.progress__filled');
-const toggle = player.querySelector('.toggle');
-const skipButtons = player.querySelectorAll('[data-skip]');
-const fullScreen = player.querySelector('.fullscreen');
-const ranges = player.querySelectorAll('.player__slider');
+const player = document.querySelector(".player");
+const video = player.querySelector(".viewer");
+const progress = player.querySelector(".progress");
+const progressBar = player.querySelector(".progress__filled");
+const toggle = player.querySelector(".toggle");
+const skipButtons = player.querySelectorAll("[data-skip]");
+const fullScreen = player.querySelector(".fullscreen");
+const ranges = player.querySelectorAll(".player__slider");
+const voiceButton = player.querySelector(".voice-button");
 
 // Speech recognition
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
+recognition = new SpeechRecognition();
 recognition.interimResults = true;
-recognition.lang = 'en-US';
+recognition.lang = "en-US";
 
 // Build our functions
+function enableVoice() {
+  //   recognition = new SpeechRecognition();
+  //   recognition.interimResults = true;
+  //   recognition.lang = "en-US";
+}
+
 function togglePlay() {
   if (video.paused) {
     video.play();
@@ -24,7 +31,7 @@ function togglePlay() {
 }
 
 function updateButton() {
-  const icon = this.paused ? '►' : '❚ ❚';
+  const icon = this.paused ? "►" : "❚ ❚";
   toggle.textContent = icon;
 }
 
@@ -49,47 +56,56 @@ function scrub(e) {
 function openFullscreen() {
   if (video.requestFullscreen) {
     video.requestFullscreen();
-  } else if (video.mozRequestFullScreen) { /* Firefox */
+  } else if (video.mozRequestFullScreen) {
+    /* Firefox */
     video.mozRequestFullScreen();
-  } else if (video.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+  } else if (video.webkitRequestFullscreen) {
+    /* Chrome, Safari and Opera */
     video.webkitRequestFullscreen();
-  } else if (video.msRequestFullscreen) { /* IE/Edge */
+  } else if (video.msRequestFullscreen) {
+    /* IE/Edge */
     video.msRequestFullscreen();
   }
 }
 
-recognition.addEventListener('result', e => {
+recognition.addEventListener("result", (e) => {
   const transcript = Array.from(e.results)
-    .map(result => result[0])
-    .map(result => result.transcript)
-    .join('');
+    .map((result) => result[0])
+    .map((result) => result.transcript)
+    .join("");
 
-  if (transcript.includes('play')) {
-    togglePlay();
+  if (e.results[0].isFinal) {
+    console.log(transcript);
+    if (transcript.includes("play")) {
+      video.play();
+    } else if (transcript.includes("pause")) {
+      video.pause();
+    } else if (transcript.includes("full screen")) {
+      openFullscreen();
+    }
   }
-  console.log(transcript);
 });
 
-
 // Hook up event listeners
-video.addEventListener('click', togglePlay);
-video.addEventListener('play', updateButton);
-video.addEventListener('pause', updateButton);
-video.addEventListener('timeupdate', handleProgress);
+video.addEventListener("click", togglePlay);
+video.addEventListener("play", updateButton);
+video.addEventListener("pause", updateButton);
+video.addEventListener("timeupdate", handleProgress);
 
-toggle.addEventListener('click', togglePlay);
-skipButtons.forEach(button => button.addEventListener('click', skip));
-fullScreen.addEventListener('click', openFullscreen);
+toggle.addEventListener("click", togglePlay);
+skipButtons.forEach((button) => button.addEventListener("click", skip));
+fullScreen.addEventListener("click", openFullscreen);
+voiceButton.addEventListener("click", enableVoice);
 
-ranges.forEach(range => range.addEventListener('change', handleRangeUpdate));
-ranges.forEach(range => range.addEventListener('mousemove', handleRangeUpdate));
+ranges.forEach((range) => range.addEventListener("change", handleRangeUpdate));
+ranges.forEach((range) => range.addEventListener("mousemove", handleRangeUpdate));
 
 let mousedown = false;
-progress.addEventListener('click', scrub);
-progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
-progress.addEventListener('mousedown', () => mousedown = true);
-progress.addEventListener('mouseup', () => mousedown = false);
+progress.addEventListener("click", scrub);
+progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
+progress.addEventListener("mousedown", () => (mousedown = true));
+progress.addEventListener("mouseup", () => (mousedown = false));
 
 // Speech Recognition
-recognition.addEventListener('end', recognition.start);
+recognition.addEventListener("end", recognition.start);
 recognition.start();
