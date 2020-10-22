@@ -35,12 +35,12 @@ function updateButton() {
   toggle.textContent = icon;
 }
 
-function skip(seconds) {
-  if (seconds) {
-    video.currentTime += parseFloat(seconds);
-  } else {
-    video.currentTime += parseFloat(this.dataset.skip);
-  }
+function skip() {
+  video.currentTime += parseFloat(this.dataset.skip);
+}
+
+function skipVoice(seconds) {
+  video.currentTime += parseFloat(seconds);
 }
 
 function handleRangeUpdate() {
@@ -104,9 +104,9 @@ recognition.addEventListener("result", (e) => {
     } else if (transcript.includes("full screen")) {
       openFullscreen();
     } else if (transcript.includes("skip ahead")) {
-      skip(25);
+      skipVoice(25);
     } else if (transcript.includes("skip back")) {
-      skip(-10);
+      skipVoice(-10);
     }
   }
 });
