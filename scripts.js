@@ -8,6 +8,23 @@ const skipButtons = player.querySelectorAll("[data-skip]");
 const fullScreen = player.querySelector(".fullscreen");
 const ranges = player.querySelectorAll(".player__slider");
 const voiceButton = player.querySelector(".voice-button");
+const ctx = canvas.getContext("2d");
+
+// do we need to get the video?
+// function getVideo() {
+//   navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((localMediaStream) => {
+//     console.log(localMediaStream);
+//     video.src = window.URL.createObjectURL(localMediaStream);
+//     video.play();
+//   });
+// }
+
+function paintToCanvas() {
+  const width = video.videoWidth;
+  const height = video.videoHeight;
+  canvas.width = width;
+  canvas.height = height;
+}
 
 // Speech recognition
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -134,3 +151,4 @@ progress.addEventListener("mouseup", () => (mousedown = false));
 // Speech Recognition
 recognition.addEventListener("end", recognition.start);
 recognition.start();
+// getVideo();
