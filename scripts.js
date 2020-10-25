@@ -108,7 +108,6 @@ recognition.addEventListener("result", (e) => {
     } else if (transcript.includes("skip back")) {
       skipVoice(-10);
     }
->>>>>>> 7ebd26ee09396e630125c903c43e5e884b038529
   }
 });
 
