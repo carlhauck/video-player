@@ -7,14 +7,21 @@ const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
 const fullScreen = player.querySelector(".fullscreen");
 const ranges = player.querySelectorAll(".player__slider");
+const voiceButton = player.querySelector(".voice-button");
 
 // Speech recognition
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
+recognition = new SpeechRecognition();
 recognition.interimResults = true;
 recognition.lang = "en-US";
 
 // Build our functions
+function enableVoice() {
+  //   recognition = new SpeechRecognition();
+  //   recognition.interimResults = true;
+  //   recognition.lang = "en-US";
+}
+
 function togglePlay() {
   if (video.paused) {
     video.play();
@@ -30,6 +37,10 @@ function updateButton() {
 
 function skip() {
   video.currentTime += parseFloat(this.dataset.skip);
+}
+
+function skipVoice(seconds) {
+  video.currentTime += parseFloat(seconds);
 }
 
 function handleRangeUpdate() {
@@ -61,16 +72,44 @@ function openFullscreen() {
   }
 }
 
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozRequestFullScreen) {
+    /* Firefox */
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    /* Chrome, Safari and Opera */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    /* IE/Edge */
+    document.msExitFullscreen();
+  }
+}
+
 recognition.addEventListener("result", (e) => {
   const transcript = Array.from(e.results)
     .map((result) => result[0])
     .map((result) => result.transcript)
     .join("");
 
-  if (transcript.includes("play")) {
-    togglePlay();
+  if (e.results[0].isFinal) {
+    console.log(transcript);
+    if (transcript.includes("play")) {
+      video.play();
+    } else if (transcript.includes("pause")) {
+      video.pause();
+    } else if (transcript.includes("exit")) {
+      exitFullscreen();
+    } else if (transcript.includes("full screen")) {
+      openFullscreen();
+    } else if (transcript.includes("skip ahead")) {
+      skipVoice(25);
+    } else if (transcript.includes("skip back")) {
+      skipVoice(-10);
+    }
+>>>>>>> 7ebd26ee09396e630125c903c43e5e884b038529
   }
-  console.log(transcript);
 });
 
 // Hook up event listeners
@@ -82,6 +121,7 @@ video.addEventListener("timeupdate", handleProgress);
 toggle.addEventListener("click", togglePlay);
 skipButtons.forEach((button) => button.addEventListener("click", skip));
 fullScreen.addEventListener("click", openFullscreen);
+voiceButton.addEventListener("click", enableVoice);
 
 ranges.forEach((range) => range.addEventListener("change", handleRangeUpdate));
 ranges.forEach((range) => range.addEventListener("mousemove", handleRangeUpdate));
