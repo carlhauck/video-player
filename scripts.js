@@ -8,22 +8,44 @@ const skipButtons = player.querySelectorAll("[data-skip]");
 const fullScreen = player.querySelector(".fullscreen");
 const ranges = player.querySelectorAll(".player__slider");
 const voiceButton = player.querySelector(".voice-button");
+const canvas = document.querySelector(".photo");
 const ctx = canvas.getContext("2d");
 
-// do we need to get the video?
-// function getVideo() {
-//   navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((localMediaStream) => {
-//     console.log(localMediaStream);
-//     video.src = window.URL.createObjectURL(localMediaStream);
-//     video.play();
-//   });
-// }
-
+// grabs screen to adjust pixels
 function paintToCanvas() {
   const width = video.videoWidth;
   const height = video.videoHeight;
   canvas.width = width;
   canvas.height = height;
+
+  return setInterval(() => {
+    ctx.drawImage(video, 0, 0, width, height);
+    // take the pixels out
+    let pixels = ctx.getImageData(0, 0, width, height);
+    // mess with them
+    // pixels = redEffect(pixels);
+
+    pixels = redEffect(pixels);
+    // ctx.globalAlpha = 0.8;
+
+    // pixels = greenScreen(pixels);
+    // put them back
+    // ctx.putImageData(pixels, 0, 0);
+  }, 1000);
+}
+
+function redEffect(pixels) {
+  console.log(pixels);
+}
+
+// returns pixels with color effect
+function rgbSplit(pixels) {
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    pixels.data[i - 150] = pixels.data[i + 0]; // RED
+    pixels.data[i + 500] = pixels.data[i + 1]; // GREEN
+    pixels.data[i - 550] = pixels.data[i + 2]; // Blue
+  }
+  return pixels;
 }
 
 // Speech recognition
@@ -133,6 +155,9 @@ video.addEventListener("click", togglePlay);
 video.addEventListener("play", updateButton);
 video.addEventListener("pause", updateButton);
 video.addEventListener("timeupdate", handleProgress);
+
+// Paint to Canvas effects
+video.addEventListener("canplay", paintToCanvas);
 
 toggle.addEventListener("click", togglePlay);
 skipButtons.forEach((button) => button.addEventListener("click", skip));
